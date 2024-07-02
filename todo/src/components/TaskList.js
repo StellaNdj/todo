@@ -1,13 +1,17 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { ListContext } from "../context/listContext";
 import EditTask from "./EditTask";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrashCan, faPenSquare } from '@fortawesome/free-solid-svg-icons';
-
+import Task from "./Task";
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 const TaskList = () => {
   const { list, deleteTask } = useContext(ListContext);
-  const [editingTask, setEditingTask] = useState(null)
+  const [editingTask, setEditingTask] = useState(null);
+  const [tasks, setTasks] = useState(list);
+
+  useEffect(() => {
+    setTasks(list);
+  }, [list]);
 
   const handleDelete = (task) => {
     deleteTask(task);
@@ -21,16 +25,42 @@ const TaskList = () => {
     setEditingTask(null);
   }
 
+  const handleOnDragEnd = (result) => {
+    if(!result.destination) return;
+
+    const items = Array.from(tasks);
+    const [reorderedItems] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItems);
+
+    setTasks(items);
+  }
+
   return (
     <>
-      {list && list.map(task =>
-        <div className="task-item" key={task.id}>{task.name}
-          <div>
-            <FontAwesomeIcon className='edit-icon' onClick={() => handleEdit(task)} icon={faPenSquare} size='lg'/>
-            <FontAwesomeIcon className='trash-icon' onClick={() => handleDelete(task)} icon={faTrashCan} size='lg'/>
-          </div>
-        </div>
-      )}
+      <DragDropContext onDragEnd={handleOnDragEnd}>
+        <Droppable droppableId="tasks">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {tasks && tasks.map((task, index) =>
+                <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <Task task={task}
+                        handleEdit={handleEdit}
+                        handleDelete={handleDelete} />
+                    </div>
+                  )}
+                </Draggable>
+              )}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
       {editingTask && <EditTask task={editingTask} onCancel={handleCancelEdit}/>}
     </>
   )

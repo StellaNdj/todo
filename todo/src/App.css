@@ -39,15 +39,27 @@
 
 /* Homepage */
 
+
 .homepage {
   background-color: #60c0bf;
-  margin: 10vh 35vh;
+  margin: 10vh 65vh;
   border-radius: 5vh;
   border: 4px solid beige;
   padding: 10px;
   box-shadow: 4px 4px;
 }
 
+@media screen and (max-width: 800px) {
+  .homepage {
+    margin: 10vh 30vh;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .homepage {
+    margin: 10vh 10vh;
+  }
+}
 
 .task-list {
   border-top: 2px solid black;
@@ -118,4 +130,14 @@
   border: 1px solid black;
   border-radius: 15%;
   cursor: pointer;
+}
+
+input[type=checkbox] {
+  cursor: pointer;
+  box-shadow: 2px 2px;
+  margin-right: 5px;
+}
+
+.checked {
+  background-color: grey;
 }
