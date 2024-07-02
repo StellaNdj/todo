@@ -1,10 +1,19 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { v4 as uuidV4 } from 'uuid'
 
 export const ListContext = createContext();
 
 export const ListContextProvider = ({children}) => {
-  const [list, setList] = useState([]);
+  const [list, setList] = useState(() => {
+    // Retrieve list from the storage
+    const savedTasks = localStorage.getItem('userTasks');
+    return savedTasks ? JSON.parse(savedTasks) : [];
+  });
+
+  // Set list in the storage
+  useEffect(() => {
+    localStorage.setItem('userTasks', JSON.stringify(list));
+  }, [list])
 
   const createTask = (task) => {
     const newTask = { id: uuidV4(), name: task };
